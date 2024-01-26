@@ -1,11 +1,17 @@
 import { StatusBar } from "expo-status-bar";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import * as SQLite from "expo-sqlite";
 import { useEffect, useState } from "react";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
-
 
 import {
   MD3LightTheme as DefaultTheme,
@@ -36,7 +42,33 @@ export default function App() {
   const [currentName, setCurrentName] = useState("");
 
   const exportDb = async () => {
-    await Sharing.shareAsync(FileSystem.documentDirectory + "SQLite/db1.db");
+    if (Platform.OS == "android") {
+      const permission =
+        await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+      if (permission.granted) {
+        const base64 = await FileSystem.readAsStringAsync(
+          FileSystem.documentDirectory + "SQLite/db1.db",
+          {
+            encoding: FileSystem.EncodingType.Base64,
+          }
+        );
+        await FileSystem.StorageAccessFramework.createFileAsync(
+          permission.directoryUri,
+          "db1.db",
+          "application/octet-stream"
+        ).then(async (uri) => {
+          FileSystem.writeAsStringAsync(uri, base64, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+        }).catch((error) => {
+          console.log(error);
+        });
+      } else {
+        Alert.alert("Error", "Permission not granted");
+      }
+    } else {
+      await Sharing.shareAsync(FileSystem.documentDirectory + "SQLite/db1.db");
+    }
   };
 
   const importDb = async () => {
@@ -45,8 +77,16 @@ export default function App() {
     });
 
     if (result.assets.length > 0) {
-      if(!(await FileSystem.getInfoAsync(FileSystem.documentDirectory + "SQLite/db1.db")).exists){
-        await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + "SQLite/");
+      if (
+        !(
+          await FileSystem.getInfoAsync(
+            FileSystem.documentDirectory + "SQLite/db1.db"
+          )
+        ).exists
+      ) {
+        await FileSystem.makeDirectoryAsync(
+          FileSystem.documentDirectory + "SQLite/"
+        );
       }
 
       const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
@@ -65,9 +105,7 @@ export default function App() {
 
       setDb(SQLite.openDatabase("db1.db"));
     }
-
-              
-  }
+  };
 
   useEffect(() => {
     db.transaction((tx) => {
