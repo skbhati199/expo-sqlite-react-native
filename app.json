@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "expo-sqlite-react-native",
+    "slug": "expo-sqlite-react-native",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.skbhati199.expo",
+      "usesIcloudStorage": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.skbhati199.expo"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerFolder": "Development"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "acdce651-aa53-4777-930f-970e05bb3c22"
+      }
+    }
+  }
+}
